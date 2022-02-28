@@ -80,6 +80,12 @@ class Renderer {
         this.drawLine({x: 480, y: 200}, {x: 480, y: 260}, color, ctx);
         this.drawBezierCurve({x: 480, y: 260}, {x: 480, y: 315}, {x: 560, y: 315}, {x: 560, y: 260}, color, ctx);
         this.drawLine({x: 560, y: 200}, {x: 560, y: 260}, color, ctx);
+
+        let points = [{x: 200, y: 400}, {x: 200, y: 200}, {x: 200, y: 300}, {x: 300, y: 400}, {x: 300, y: 200}, {x: 350, y: 300}, {x: 350, y: 200}, 
+            {x: 400, y: 200}, {x: 400, y: 300}, {x: 480, y: 200}, {x: 480, y: 260}, {x: 560, y: 200}, {x: 560, y: 260}];
+        if (this.show_points){
+            this.showPointData(points, [0, 0, 0, 255], ctx);
+        }
     }
 
     // left_bottom:  object ({x: __, y: __})
@@ -87,15 +93,28 @@ class Renderer {
     // color:        array of int [R, G, B, A]
     // ctx:          canvas context
     drawRectangle(left_bottom, right_top, color, ctx) {
-        let x_left = left_bottom.x;
-        let x_right = right_top.x;
-        let y_top = right_top.y;
-        let y_bottom = left_bottom.y;
+        let points = [{x: left_bottom.x,y: right_top.y}, {x: right_top.x, y: right_top.y}, {x: right_top.x, y: left_bottom.y}, {x: left_bottom.x, y: left_bottom.y}];
 
-        this.drawLine({x: x_left,y: y_top}, {x: x_right, y: y_top}, color, ctx);
-        this.drawLine({x: x_right, y: y_top}, {x: x_right, y: y_bottom}, color, ctx);
-        this.drawLine({x: x_right, y: y_bottom}, {x: x_left, y: y_bottom}, color, ctx);
-        this.drawLine({x: x_left, y: y_bottom}, {x: x_left, y: y_top}, color, ctx);
+        for (let j = 1; j <= points.length; j++){
+            let index = j % points.length;
+            let index2 = (j - 1) % points.length;
+            this.drawLine({x: points[index].x, y: points[index].y}, {x: points[index2].x, y: points[index2].y}, color, ctx);
+        }
+
+        if (this.show_points){
+            this.showPointData(points, [0, 0, 0, 255], ctx);
+        }
+    }
+
+    showPointData (points, color, ctx){
+        for (let i = 0; i < points.length; i++){
+            let x = points[i].x;
+            let y = points[i].y;
+            this.drawLine({x: x - 3, y: y + 3}, {x: x + 3, y: y + 3}, color, ctx);
+            this.drawLine({x: x + 3, y: y + 3}, {x: x + 3, y: y - 3}, color, ctx);
+            this.drawLine({x: x + 3, y: y - 3}, {x: x - 3, y: y - 3}, color, ctx);
+            this.drawLine({x: x - 3, y: y - 3}, {x: x - 3, y: y + 3}, color, ctx);
+        }
     }
 
     // center:       object ({x: __, y: __})
@@ -117,6 +136,11 @@ class Renderer {
             let index2 = (j - 1) % this.num_curve_sections;
             this.drawLine({x: points[index].x, y: points[index].y}, {x: points[index2].x, y: points[index2].y}, color, ctx);
         }
+
+        if (this.show_points){
+            this.showPointData(points, [0, 0, 0, 255], ctx);
+            this.showPointData([center], [128, 0, 255, 255], ctx);
+        }
     }
 
     // pt0:          object ({x: __, y: __})
@@ -127,7 +151,8 @@ class Renderer {
     // ctx:          canvas context
     drawBezierCurve(pt0, pt1, pt2, pt3, color, ctx) {
         let points = []; // array of points
-        
+        let controlPoints = [pt1, pt2];
+
         for (let i = 0; i <= this.num_curve_sections; i++){
             let t = i * (1 / this.num_curve_sections);
             let x = Math.pow((1 - t), 3) * pt0.x + 3 * t * Math.pow((1 - t), 2) * pt1.x + 3 * t * t * (1 - t) * pt2.x + t * t * t * pt3.x;
@@ -137,6 +162,11 @@ class Renderer {
 
         for (let j = 0; j < this.num_curve_sections; j++){
             this.drawLine({x: points[j].x, y: points[j].y}, {x: points[j + 1].x, y: points[j + 1].y}, color, ctx);
+        }
+
+        if (this.show_points){
+            this.showPointData(points, [0, 0, 0, 255], ctx);
+            this.showPointData(controlPoints, [255, 128, 0, 255], ctx);
         }
     }
 
