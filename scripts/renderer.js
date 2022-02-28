@@ -81,6 +81,7 @@ class Renderer {
         this.drawBezierCurve({x: 480, y: 260}, {x: 480, y: 315}, {x: 560, y: 315}, {x: 560, y: 260}, color, ctx);
         this.drawLine({x: 560, y: 200}, {x: 560, y: 260}, color, ctx);
 
+        // Points of lines
         let points = [{x: 200, y: 400}, {x: 200, y: 200}, {x: 200, y: 300}, {x: 300, y: 400}, {x: 300, y: 200}, {x: 350, y: 300}, {x: 350, y: 200}, 
             {x: 400, y: 200}, {x: 400, y: 300}, {x: 480, y: 200}, {x: 480, y: 260}, {x: 560, y: 200}, {x: 560, y: 260}];
         if (this.show_points){
@@ -95,6 +96,7 @@ class Renderer {
     drawRectangle(left_bottom, right_top, color, ctx) {
         let points = [{x: left_bottom.x,y: right_top.y}, {x: right_top.x, y: right_top.y}, {x: right_top.x, y: left_bottom.y}, {x: left_bottom.x, y: left_bottom.y}];
 
+        // Drawing lines using points
         for (let j = 1; j <= points.length; j++){
             let index = j % points.length;
             let index2 = (j - 1) % points.length;
@@ -106,17 +108,6 @@ class Renderer {
         }
     }
 
-    showPointData (points, color, ctx){
-        for (let i = 0; i < points.length; i++){
-            let x = points[i].x;
-            let y = points[i].y;
-            this.drawLine({x: x - 3, y: y + 3}, {x: x + 3, y: y + 3}, color, ctx);
-            this.drawLine({x: x + 3, y: y + 3}, {x: x + 3, y: y - 3}, color, ctx);
-            this.drawLine({x: x + 3, y: y - 3}, {x: x - 3, y: y - 3}, color, ctx);
-            this.drawLine({x: x - 3, y: y - 3}, {x: x - 3, y: y + 3}, color, ctx);
-        }
-    }
-
     // center:       object ({x: __, y: __})
     // radius:       int
     // color:        array of int [R, G, B, A]
@@ -125,12 +116,14 @@ class Renderer {
         let points = [];
         let degree = 360 / this.num_curve_sections;
 
+        // Find coordinates of points
         for (let i = 0; i < this.num_curve_sections; i++){
             let x = center.x + Math.cos((Math.PI / 180 ) * i * degree) * radius;
             let y = center.y + Math.sin((Math.PI / 180 ) * i * degree) * radius;
             points.push({x: x, y: y});
         }
 
+        // Drawing lines using points
         for (let j = 1; j <= this.num_curve_sections; j++){
             let index = j % this.num_curve_sections;
             let index2 = (j - 1) % this.num_curve_sections;
@@ -153,6 +146,7 @@ class Renderer {
         let points = []; // array of points
         let controlPoints = [pt1, pt2];
 
+        // Find the coordinates of vertices and add points to array
         for (let i = 0; i <= this.num_curve_sections; i++){
             let t = i * (1 / this.num_curve_sections);
             let x = Math.pow((1 - t), 3) * pt0.x + 3 * t * Math.pow((1 - t), 2) * pt1.x + 3 * t * t * (1 - t) * pt2.x + t * t * t * pt3.x;
@@ -160,6 +154,7 @@ class Renderer {
             points.push({x: x, y: y});
         }
 
+        // Use the array of points to draw lines
         for (let j = 0; j < this.num_curve_sections; j++){
             this.drawLine({x: points[j].x, y: points[j].y}, {x: points[j + 1].x, y: points[j + 1].y}, color, ctx);
         }
@@ -181,5 +176,20 @@ class Renderer {
         ctx.moveTo(pt0.x, pt0.y);
         ctx.lineTo(pt1.x, pt1.y);
         ctx.stroke();
+    }
+
+    // This method is called to draw small squares at vertices
+    // points:      array of objects [{x: __, y: __}, {x: __, y: __}, ...]
+    // color:       array of int [R, G, B, A]
+    // ctx:         canvas context
+    showPointData (points, color, ctx){
+        for (let i = 0; i < points.length; i++){
+            let x = points[i].x;
+            let y = points[i].y;
+            this.drawLine({x: x - 3, y: y + 3}, {x: x + 3, y: y + 3}, color, ctx);
+            this.drawLine({x: x + 3, y: y + 3}, {x: x + 3, y: y - 3}, color, ctx);
+            this.drawLine({x: x + 3, y: y - 3}, {x: x - 3, y: y - 3}, color, ctx);
+            this.drawLine({x: x - 3, y: y - 3}, {x: x - 3, y: y + 3}, color, ctx);
+        }
     }
 };
